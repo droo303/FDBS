@@ -7,9 +7,10 @@
 
 #pragma once
 
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 #include <iostream>
+#include <vector>
 
 template<class TKey, class TData>
 class cRecord
@@ -35,9 +36,8 @@ private:
     int mCapacity;
     int mCount;
 
-    cRecord<TKey, TData>** mData = new cRecord<TKey, TData>* [100000];
-private:
-    inline char* GetRowPointer(int rowId) const;
+    std::vector<cRecord<TKey, TData>> mData = std::vector<cRecord<TKey, TData>>();
+    cRecord<TKey, TData>** mPointerData;
 
 public:
     cPointerTable(int capacity);
@@ -52,9 +52,11 @@ public:
 template<class TKey, class TData>
 cPointerTable<TKey, TData>::cPointerTable(int capacity)
 {
+    mData = new cRecord<TKey, TData> [capacity];
+    mPointerData = new cRecord<TKey, TData>* [capacity];
+
     mCapacity = capacity;
     mCount = 0;
-    mData = new char[mRowSize * capacity];
 }
 
 template<class TKey, class TData>
@@ -64,28 +66,21 @@ cPointerTable<TKey, TData>::~cPointerTable()
     {
         delete mData;
         mData = NULL;
+        delete mPointerData;
+        mPointerData = NULL;
+
         mCapacity = 0;
         mCount = 0;
     }
 }
 
 template<class TKey, class TData>
-inline char* cPointerTable<TKey, TData>::GetRowPointer(int rowId) const
-{
-    return mData + rowId * mRowSize;
-}
-
-template<class TKey, class TData>
 bool cPointerTable<TKey, TData>::Get(int rowId, TKey &key, TData &data) const
 {
-
     bool ret = false;
     assert(rowId >= 0 && rowId < mCount);
-    ret = true;
 
-    char* p = GetRowPointer(rowId);
-    key = *((TKey*)p);
-    data = *((TData*)(p + sizeof(TKey)));
+    //TODO
 
     return ret;
 }
@@ -96,15 +91,14 @@ bool cPointerTable<TKey, TData>::Add(const TKey &key, const TData &data)
     bool ret = false;
     assert(mCapacity > mCount);
 
-    // get pointer to empty place according to count already in
-    char* p = mData + mRowSize * mCount;
-    // insert key
-    *(TKey*)p = key;
-    // move pointer by the size of key
-    p += sizeof (TKey);
-    // insert data
-    *(TData*)p = data;
-    // increment count
+    // insert record to data
+    cRecord<TKey, TData> record = new cRecord<TKey, TData>(key,data);
+    mData.insert(record);
+
+    // save its pointer (key)
+    cRecord<TKey,TData>* cRecordPtr = &mData.back();
+    mPointerData[mCount] = cRecordPtr;
+
     mCount++;
 
     ret = true;
@@ -113,22 +107,8 @@ bool cPointerTable<TKey, TData>::Add(const TKey &key, const TData &data)
 
 template<class TKey, class TData>
 bool cPointerTable<TKey, TData>::Find(const TKey &key, TData &data) const {
+    //TODO
     bool ret = false;
-
-    TKey found_key = 0;
-    TData found_data = 0;
-    int row_id = 0;
-    char* p = GetRowPointer(row_id);
-
-    do {
-        found_key = *(TKey*)p;
-        std::cout << found_key << "first\n";
-        p += sizeof (TKey);
-        found_data = *(TData*)p;
-        std::cout << found_data << "after move\n";
-        p += sizeof (TData);
-    } while (found_key != key && row_id < mCount);
-
     return ret;
 }
 
