@@ -72,7 +72,7 @@ bool cHashTable<TKey, TData>::Add(const TKey &key, const TData &data)
         }
         else  {
             char* mem = mMemory->New(sizeof (cHashTableNode<TKey, TData>));
-            mHashTable[hv] = new (mem)cHashTableNode<TKey, TData>()''
+            mHashTable[hv] = new (mem)cHashTableNode<TKey, TData>();
         }
         mNodeCount++;
     }
@@ -83,10 +83,8 @@ bool cHashTable<TKey, TData>::Add(const TKey &key, const TData &data)
 template<class TKey, class TData>
 bool cHashTable<TKey, TData>::Find(const TKey &key, TData &data) const
 {
-    //TODO
     if (mHashTable[HashValue(key)]->Find(key, data)) return true;
     return false;
-    //
 }
 
 template<class TKey, class TData>
