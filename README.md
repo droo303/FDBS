@@ -1,13 +1,18 @@
-# FDBS
+### Sekvenční vs Náhodný přístup
+Při testu s 10^7 přístupy byl sekvenční přístup 5-10 krát rychlejší než náhodný.
+Tato vlastnost je způsobena cachováním procesoru.
+### HeapTable
+Tabulka s řádkovým uložením:
+Pro 10^7 záznamů naměřena propustnost:
+* Vkládání : ~9 mil. op/s
+* Čtení:     ~10 mil. op/s
+* Hledání:   ~200 op/s 
 
-Repository for FDBS tasks.
+### HashTable
+Tabulka s uložením dat v hashovací tabulce
+Pro 10^7 záznamů naměřena propustnost:
 
-### Úkol 0.
-Při testu pro srovnání rychlosti přístupu (čtení, zápis) do paměti se potvrdilo, že sekvenční přístup je rychlejší. V tomto testu bylo vykonáno 10 milionu přístupů pro každou operaci, kde sekvenční přístup proběhl v 5 až 10 krát kratším čase.
+* Vkládání: ~2 mil. op/s.
+* Hledání: ~6 mil. op/s.
 
-### Úkol 1.
-Do tabulky s řádkovým uložením bylo vloženo 10 milionu záznamů. Při sekvenčním průchodu byla naměřena propustnost ~150 mil. op/s. pro vkládání a ~160 mil. op/s pro čtení.
-
-Časová složitost operace Find (hledání záznamu dle klíče) je pro nesetřízená data vzhledem k  velikosti tabulky lineární. Pro test nevhodnosti lineárního hledání bylo v tabulce opakovaně hledáno 10 000 náhodných klíčů. V tomto případě propustnost dosahovala pouze okolo 8000 op/s.
-
-### Úkol 2.
+Za cenu pomalejšího vkládání dosahuje použití hashovací tabulky výrazně rychlejšího hledání.

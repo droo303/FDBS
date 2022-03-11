@@ -38,34 +38,73 @@ cHashTableNode<TKey, TData>::~cHashTableNode()
     }
 }
 
+//recursive
+//template<class TKey, class TData>
+//bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, int &itemCount, int &nodeCount)
+//{
+//    bool ret = true;
+//
+//    if (!mEmptyNode) {
+//        if (mKey == key) {
+//            ret = false;
+//        }
+//        else {
+//            if (mNextNode == NULL) {
+//                mNextNode = new cHashTableNode<TKey, TData>();
+//                nodeCount++;
+//            }
+//            ret = mNextNode->Add(key, data, itemCount, nodeCount);
+//        }
+//    }
+//    else {
+//        mKey = key;
+//        mData = data;
+//        mEmptyNode = false;
+//        itemCount++;
+//
+//        ret = true;
+//    }
+//    return ret;
+//}
+
+//non-recursive
 template<class TKey, class TData>
-bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, int &itemCount, int &nodeCount)
-{
-    bool ret = true;
+bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, int &itemCount, int &nodeCount) {
 
-    if (!mEmptyNode) {
-        if (mKey == key) {
-            ret = false;
-        }
-        else {
-            if (mNextNode == NULL) {
-                mNextNode = new cHashTableNode<TKey, TData>();
-                nodeCount++;
-            }
-            ret = mNextNode->Add(key, data, itemCount, nodeCount);
-        }
-    }
-    else {
-        mKey = key;
-        mData = data;
-        mEmptyNode = false;
-        itemCount++;
+    const cHashTableNode *node_ptr = this;
 
-        ret = true;
+    while (true){
+
+        if (node_ptr->mEmptyNode) {
+
+            node_ptr->mKey = key;
+            node_ptr->mData = data;
+            itemCount++;
+
+            return true;
+
+        } else if (node_ptr->mKey == key) {
+            return false;
+        }
+
+        if (node_ptr->mNextNode == NULL) {
+            node_ptr->mNextNode = new cHashTableNode<TKey, TData>();
+
+            nodeCount++;
+
+            node_ptr->mNextNode->mKey = key;
+            node_ptr->mNextNode->mData = data;
+
+            itemCount++;
+
+            return true;
+        }
+
+        node_ptr = node_ptr->mNextNode;
     }
-    return ret;
 }
 
+// recursive
 template<class TKey, class TData>
 bool cHashTableNode<TKey, TData>::Find(const TKey &key, TData &data) const
 {
@@ -78,33 +117,100 @@ bool cHashTableNode<TKey, TData>::Find(const TKey &key, TData &data) const
     return false;
 }
 
+// non-recursive implementation
+//template<class TKey, class TData>
+//bool cHashTableNode<TKey, TData>::Find(const TKey &key, TData &data) const {
+//
+//    const cHashTableNode *node_ptr = this;
+//
+//    while (true) {
+//
+//        if (node_ptr->mEmptyNode || node_ptr->mNextNode == NULL) return false;
+//
+//        if (node_ptr->mKey == key) {
+//            data = node_ptr->mData;
+//            return true;
+//
+//        }
+//
+//            node_ptr = node_ptr->mNextNode;
+//    }
+//}
+
+//recursive
+//template<class TKey, class TData>
+//bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, cMemory *&memory, int &itemCount, int &nodeCount) {
+//    bool ret = true;
+//    if (!mEmptyNode ) {
+//        if(mKey == key) {
+//            ret = false;
+//        }
+//        else {
+//            if (mNextNode == NULL) {
+//                if (memory == NULL) {
+//                    mNextNode = new cHashTableNode<TKey , TData> () ;
+//                }
+//                else {
+//                    char* mem = memory->New(sizeof(cHashTableNode<TKey,TData>));
+//                    mNextNode = new (mem)cHashTableNode<TKey,TData>();
+//                }
+//                nodeCount++;
+//            }
+//            ret = mNextNode->Add(key,data,memory,itemCount,nodeCount);
+//        }
+//    }
+//    else {
+//        mKey = key ;
+//        mData = data ;
+//        mEmptyNode = false;
+//        itemCount++;
+//        ret = true;
+//    }
+//    return ret;
+//}
+
+//non-recursive
 template<class TKey, class TData>
 bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, cMemory *&memory, int &itemCount, int &nodeCount) {
-    bool ret = true;
-    if (!mEmptyNode ) {
-        if(mKey == key) {
-            ret = false;
+
+    cHashTableNode *node_ptr = this;
+
+    while (true){
+
+        if (node_ptr->mEmptyNode) {
+
+            node_ptr->mKey = key;
+            node_ptr->mData = data;
+            node_ptr->mEmptyNode = false;
+
+            itemCount++;
+
+            return true;
+
+        } else if (node_ptr->mKey == key) {
+            return false;
         }
-        else {
-            if (mNextNode == NULL) {
-                if (memory == NULL) {
-                    mNextNode = new cHashTableNode<TKey , TData> () ;
-                }
-                else {
-                    char* mem = memory->New(sizeof(cHashTableNode<TKey,TData>));
-                    mNextNode = new (mem)cHashTableNode<TKey,TData>();
-                }
-                nodeCount++;
+
+        if (node_ptr->mNextNode == NULL) {
+            if (memory == NULL) {
+                node_ptr->mNextNode = new cHashTableNode<TKey , TData> () ;
             }
-            ret = mNextNode->Add(key,data,memory,itemCount,nodeCount);
+            else {
+                char* mem = memory->New(sizeof(cHashTableNode<TKey,TData>));
+                node_ptr->mNextNode = new (mem)cHashTableNode<TKey,TData>();
+            }
+
+            nodeCount++;
+
+            node_ptr->mNextNode->mKey = key;
+            node_ptr->mNextNode->mData = data;
+            node_ptr->mNextNode->mEmptyNode = false;
+
+            itemCount++;
+
+            return true;
         }
+
+        node_ptr = node_ptr->mNextNode;
     }
-    else {
-        mKey = key ;
-        mData = data ;
-        mEmptyNode = false;
-        itemCount++;
-        ret = true;
-    }
-    return ret;
 }
