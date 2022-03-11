@@ -24,6 +24,10 @@ public:
     bool Add(const TKey &key, const TData &data);
     bool Find(const TKey &key, TData &data) const;
     void PrintStat() const;
+
+    bool AddNonRecursive(const TKey &key, const TData &data);
+
+    bool FindNonRecursive(const TKey &key, TData &data) const;
 };
 
 template<class TKey, class TData>
@@ -81,9 +85,35 @@ bool cHashTable<TKey, TData>::Add(const TKey &key, const TData &data)
 }
 
 template<class TKey, class TData>
+bool cHashTable<TKey, TData>::AddNonRecursive(const TKey &key, const TData &data)
+{
+    int hv = HashValue(key);
+
+    if (mHashTable[hv] == NULL) {
+        if (mMemory == NULL) {
+            mHashTable[hv] = new cHashTableNode<TKey, TData>();
+        }
+        else  {
+            char* mem = mMemory->New(sizeof (cHashTableNode<TKey, TData>));
+            mHashTable[hv] = new (mem)cHashTableNode<TKey, TData>();
+        }
+        mNodeCount++;
+    }
+
+    return mHashTable[hv]->AddNonRecursive(key, data, mMemory, mItemCount, mNodeCount);
+}
+
+template<class TKey, class TData>
 bool cHashTable<TKey, TData>::Find(const TKey &key, TData &data) const
 {
     if (mHashTable[HashValue(key)]->Find(key, data)) return true;
+    return false;
+}
+
+template<class TKey, class TData>
+bool cHashTable<TKey, TData>::FindNonRecursive(const TKey &key, TData &data) const
+{
+    if (mHashTable[HashValue(key)]->FindNonRecursive(key, data)) return true;
     return false;
 }
 
