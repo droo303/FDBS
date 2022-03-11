@@ -16,3 +16,5 @@ Pro 10^7 záznamů naměřena propustnost:
 * Hledání: ~6 mil. op/s.
 
 Za cenu pomalejšího vkládání dosahuje použití hashovací tabulky výrazně rychlejšího hledání.
+
+Dalšího zrychlení lze dosáhnout odstraněním dynamické alokace paměti nebo odstranění rekurzivního použití metod.
