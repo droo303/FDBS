@@ -2,8 +2,10 @@
 #include <chrono>
 #include <iostream>
 
+
 #include "cHeapTable.h"
 #include "cHashTable.h"
+#include "seq_rand_access.h"
 
 #define TKey int
 #define TData int
@@ -12,6 +14,7 @@ using namespace std;
 using namespace std::chrono;
 
 float GetThroughput(int opsCount, float period, int unit = 10e6);
+void seqRandAccessTest();
 void heapTableTest(const int rowCount);
 void hashTableTest(const int rowCount);
 void hashTableTest(const int i, cMemory *pMemory);
@@ -19,6 +22,8 @@ void hashTableTestNonRecursive(int rowCount, cMemory *pMemory);
 
 int main()
 {
+    seqRandAccessTest();
+
     const int RowCount = 10000000;
     heapTableTest(RowCount);
     printf("\n");
@@ -41,6 +46,39 @@ int main()
 float GetThroughput(int opsCount, float period, int unit)
 {
     return ((float)opsCount / unit) / period;
+}
+
+
+void seqRandAccessTest() {
+
+    // seq vs rand access to memory
+    auto *seqRandAccess = new seq_rand_access();
+
+    auto tp1 = high_resolution_clock::now();
+    seqRandAccess->Insert(false);
+    auto tp2 = high_resolution_clock::now();
+    seqRandAccess->Read(false);
+    auto tp3 = high_resolution_clock::now();
+    seqRandAccess->Insert(true);
+    auto tp4 = high_resolution_clock::now();
+    seqRandAccess->Read(true);
+    auto tp5 = high_resolution_clock::now();
+
+    printf("\nSeq. vs rand. access to the memory comparison.\n");
+
+    duration<double> ts = duration_cast<duration<double>>(tp2 - tp1);
+    printf("Seq. insertion done. Time: %.2fs, Throughput: %.2f op/s.\n", ts.count(), (float)1000 / ts.count());
+
+    ts = duration_cast<duration<double>>(tp3 - tp2);
+    printf("Seq. read done. Time: %.2fs, Throughput: %.2f op/s.\n", ts.count(), (float)1000 / ts.count());
+
+    ts = duration_cast<duration<double>>(tp4 - tp3);
+    printf("Rand. insertion done. Time: %.2fs, Throughput: %.2f op/s.\n", ts.count(), (float)1000 / ts.count());
+
+    ts = duration_cast<duration<double>>(tp5 -tp4);
+    printf("Rand. read done. Time: %.2fs, Throughput: %.2f op/s.\n", ts.count(), (float)1000 / ts.count());
+
+    printf("\n");
 }
 
 void heapTableTest(const int rowCount)
